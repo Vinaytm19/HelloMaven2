@@ -1,14 +1,20 @@
---- 
-- 
-name: Deploy Maven Artifact (Jenkins User Accessible) 
-hosts: localhost 
-become: yes 
-tasks: - name: Ensure deployment directory exists 
-ansible.builtin.file: 
-path: /home/thejan/deployment 
-state: directory 
-mode: '0755' - name: Copy the artifact to the deployment directory 
-ansible.builtin.copy: 
-src: /var/lib/jenkins/workspace/HelloMaven-CI/target/HelloMaven-1.0-SNAPSHOT.jar 
-dest: /home/thejan/deployment/HelloMaven.jar 
-remote_src: yes 
+---
+- name: Deploy Maven Artifact
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create application directory
+      file:
+        path: /opt/hellomaven
+        state: directory
+
+    - name: Copy JAR
+      copy:
+        src: target/Hellomaven2-1.0-SNAPSHOT.jar
+        dest: /opt/hellomaven/Hellomaven2.jar
+
+    - name: Run application
+      shell: |
+        pkill -f Hellomaven2.jar || true
+        nohup java -jar /opt/hellomaven/Hellomaven2.jar > /tmp/app.log 2>&1 &
